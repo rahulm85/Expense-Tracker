@@ -3,28 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Tracker</title>
+  <title>GenC Web UI - Expense Tracker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
-    <header>
-      <h1>Task Tracker</h1>
-      <p>Organize your day efficiently</p>
-    </header>
 
-    <div class="input-section">
-      <input type="text" id="taskInput" placeholder="Add a new task..." />
-      <button id="addBtn">Add</button>
-    </div>
+  <header class="header">
+    <h1>Expense Tracker</h1>
+    <p>Track your daily income and expenses</p>
+  </header>
 
-    <ul id="taskList"></ul>
+  <main class="container">
+    <!-- Balance Card Summary -->
+    <section class="summary-cards">
+      <div class="card income-card">
+        <h3>Total Income</h3>
+        <p id="totalIncome">₹0.00</p>
+      </div>git add .
+      git add .
+      <div class="card expense-card">
+        <h3>Total Expense</h3>
+        <p id="totalExpense">₹0.00</p>
+      </div>
+      <div class="card balance-card">
+        <h3>Net Balance</h3>
+        <p id="netBalance">₹0.00</p>
+      </div>
+    </section>
 
-    <div class="footer">
-      <span id="taskCount">0 tasks left</span>
-      <button id="clearCompletedBtn">Clear Completed</button>
-    </div>
-  </div>
+    <!-- HTML5 Form Section -->
+    <section class="form-section">
+      <h2>Add New Transaction</h2>
+      <form id="transactionForm">
+        <div class="form-control">
+          <label for="desc">Description</label>
+          <input 
+            type="text" 
+            id="desc" 
+            placeholder="e.g., Book purchase, Salary..." 
+            required 
+            minlength="3" 
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-control">
+          <label for="amount">Amount (₹)</label>
+          <input 
+            type="number" 
+            id="amount" 
+            placeholder="Enter amount" 
+            required 
+            min="1" 
+            step="any"
+          />
+        </div>
+
+        <div class="form-control">
+          <label for="type">Type</label>
+          <select id="type" required>
+            <option value="income">Income (+)</option>
+            <option value="expense">Expense (-)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn">Add Transaction</button>
+      </form>
+    </section>
+
+    <!-- History Section -->
+    <section class="history-section">
+      <h2>Transaction History</h2>
+      <ul id="transactionList" class="list">
+        <!-- Rendered dynamically -->
+      </ul>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>

@@ -1,3 +1,4 @@
+/* Box Model Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,127 +7,166 @@
 }
 
 body {
-  background-color: #f4f6f8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  background-color: #f4f6f9;
+  color: #333;
+  padding: 20px;
 }
 
-.app-container {
-  background: #ffffff;
-  width: 100%;
-  max-width: 420px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  padding: 24px;
-}
-
-header {
+.header {
+  text-align: center;
   margin-bottom: 20px;
 }
 
-header h1 {
-  font-size: 1.6rem;
+.header h1 {
   color: #1e293b;
 }
 
-header p {
-  font-size: 0.875rem;
+.header p {
   color: #64748b;
+  font-size: 0.9rem;
 }
 
-.input-section {
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* CSS Grid for Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.card {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.card h3 {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.card p {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.income-card p { color: #16a34a; }
+.expense-card p { color: #dc2626; }
+.balance-card p { color: #2563eb; }
+
+/* Form Styling */
+.form-section {
+  margin-bottom: 24px;
+}
+
+.form-section h2, .history-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 6px;
+}
+
+#transactionForm {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-input[type="text"] {
-  flex: 1;
-  padding: 10px 14px;
+.form-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-control label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.form-control input, .form-control select {
+  padding: 10px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  outline: none;
   font-size: 0.95rem;
-  transition: border-color 0.2s;
 }
 
-input[type="text"]:focus {
-  border-color: #3b82f6;
+.form-control input:focus, .form-control select:focus {
+  outline: none;
+  border-color: #2563eb;
 }
 
-button {
-  cursor: pointer;
+.btn {
+  background-color: #2563eb;
+  color: white;
+  padding: 10px;
   border: none;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: bold;
+  cursor: pointer;
   transition: background 0.2s;
 }
 
-#addBtn {
-  background-color: #3b82f6;
-  color: white;
-  padding: 10px 18px;
+.btn:hover {
+  background-color: #1d4ed8;
 }
 
-#addBtn:hover {
-  background-color: #2563eb;
-}
-
-#taskList {
+/* History List Styling */
+.list {
   list-style: none;
-  max-height: 250px;
-  overflow-y: auto;
-  margin-bottom: 20px;
 }
 
-.task-item {
+.list-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-left: 5px solid #cbd5e1;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
-.task-item.completed span {
-  text-decoration: line-through;
-  color: #94a3b8;
-}
-
-.task-text {
-  cursor: pointer;
-  flex: 1;
-  margin-left: 10px;
-}
+.list-item.income { border-left-color: #16a34a; }
+.list-item.expense { border-left-color: #dc2626; }
 
 .delete-btn {
-  background: transparent;
-  color: #ef4444;
-  font-size: 1.1rem;
-  padding: 2px 6px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.delete-btn:hover {
-  color: #dc2626;
-}
+/* -------------------------------------------------- */
+/* Responsive Web Design (RWD) Media Queries           */
+/* -------------------------------------------------- */
+@media (min-width: 580px) {
+  .summary-cards {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on tablet/desktop */
+  }
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  color: #64748b;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 14px;
-}
+  #transactionForm {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: end;
+  }
 
-#clearCompletedBtn {
-  background: transparent;
-  color: #64748b;
-  font-size: 0.85rem;
-}
-
-#clearCompletedBtn:hover {
-  color: #1e293b;
+  .btn {
+    grid-column: span 3;
+  }
 }

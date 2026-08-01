@@ -1,78 +1,98 @@
-// DOM Element Selections
-const taskInput = document.getElementById('taskInput');
-const addBtn = document.getElementById('addBtn');
-const taskList = document.getElementById('taskList');
-const taskCount = document.getElementById('taskCount');
-const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+// Array to store transactions
+let transactions = [];
 
-let tasks = [];
+// DOM Elements
+const transactionForm = document.getElementById('transactionForm');
+const descInput = document.getElementById('desc');
+const amountInput = document.getElementById('amount');
+const typeInput = document.getElementById('type');
+const transactionList = document.getElementById('transactionList');
 
-// Event Listeners
-addBtn.addEventListener('click', addTask);
-taskInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') addTask();
-});
-clearCompletedBtn.addEventListener('click', clearCompleted);
+const totalIncomeEl = document.getElementById('totalIncome');
+const totalExpenseEl = document.getElementById('totalExpense');
+const netBalanceEl = document.getElementById('netBalance');
 
-function addTask() {
-  const text = taskInput.value.trim();
-  if (!text) return;
+// Event Listener for Form Submit
+transactionForm.addEventListener('submit', function (e) {
+  e.preventDefault();
 
-  const newTask = {
+  const desc = descInput.value.trim();
+  const amount = parseFloat(amountInput.value);
+  const type = typeInput.value;
+
+  if (!desc || isNaN(amount)) return;
+
+  const transaction = {
     id: Date.now(),
-    text: text,
-    completed: false
+    desc: desc,
+    amount: amount,
+    type: type
   };
 
-  tasks.push(newTask);
-  taskInput.value = '';
-  render();
+  transactions.push(transaction);
+
+  // Reset inputs
+  transactionForm.reset();
+
+  updateUI();
+});
+
+// Event Delegation for Deleting Items
+transactionList.addEventListener('click', function (e) {
+  if (e.target.classList.contains('delete-btn')) {
+    const id = Number(e.target.getAttribute('data-id'));
+    transactions = transactions.filter(item => item.id !== id);
+    updateUI();
+  }
+});
+
+// Update DOM and Totals
+function updateUI() {
+  renderList();
+  calculateTotals();
 }
 
-function toggleTask(id) {
-  tasks = tasks.map(task => 
-    task.id === id ? { ...task, completed: !task.completed } : task
-  );
-  render();
-}
+function renderList() {
+  transactionList.innerHTML = '';
 
-function deleteTask(id) {
-  tasks = tasks.filter(task => task.id !== id);
-  render();
-}
+  if (transactions.length === 0) {
+    transactionList.innerHTML = '<p style="color:#94a3b8; text-align:center;">No transactions added yet.</p>';
+    return;
+  }
 
-function clearCompleted() {
-  tasks = tasks.filter(task => !task.completed);
-  render();
-}
-
-function render() {
-  taskList.innerHTML = '';
-
-  tasks.forEach(task => {
+  transactions.forEach(item => {
     const li = document.createElement('li');
-    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+    li.className = `list-item ${item.type}`;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = task.completed;
-    checkbox.addEventListener('change', () => toggleTask(task.id));
+    const sign = item.type === 'income' ? '+' : '-';
 
-    const span = document.createElement('span');
-    span.className = 'task-text';
-    span.textContent = task.text;
+    li.innerHTML = `
+      <span>${item.desc}</span>
+      <div>
+        <strong>${sign}₹${item.amount.toFixed(2)}</strong>
+        <button class="delete-btn" data-id="${item.id}" style="margin-left:10px;">&times;</button>
+      </div>
+    `;
 
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.innerHTML = '&times;';
-    deleteBtn.addEventListener('click', () => deleteTask(task.id));
-
-    li.appendChild(checkbox);
-    li.appendChild(span);
-    li.appendChild(deleteBtn);
-    taskList.appendChild(li);
+    transactionList.appendChild(li);
   });
-
-  const remaining = tasks.filter(t => !t.completed).length;
-  taskCount.textContent = `${remaining} task${remaining === 1 ? '' : 's'} left`;
 }
+
+function calculateTotals() {
+  const income = transactions
+    .filter(item => item.type === 'income')
+    .reduce((acc, item) => acc + item.amount, 0);
+
+  const expense = transactions
+    .filter(item => item.type === 'expense')
+    .reduce((acc, item) => acc + item.amount, 0);
+
+  const balance = income - expense;
+
+  totalIncomeEl.textContent = `₹${income.toFixed(2)}`;
+  totalExpenseEl.textContent = `₹${expense.toFixed(2)}`;
+  netBalanceEl.textContent = `₹${balance.toFixed(2)}`;
+}
+
+// Initial render
+updateUI();
