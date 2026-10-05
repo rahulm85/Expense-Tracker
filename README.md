@@ -1,35 +1,26 @@
 # Expense Tracker
 
-A full-stack Expense Tracker built with web development technologies, JavaScript, Node.js/Express, and MySQL. It allows users to record income and expenses, view transaction history, automatically calculate total income, total expenses and net balance, and permanently store financial records in a relational database.
-
-## Skills demonstrated
-- Web Development
-- JavaScript and DOM manipulation
-- REST API development with Node.js and Express
-- SQL / MySQL database operations
-- Prepared statements and input validation
-- Asynchronous Fetch API integration
+A browser-only expense tracker built with HTML, CSS, and JavaScript. Add income and expense transactions, review your history, and see totals update immediately.
 
 ## Features
-- Add income and expense transactions
-- Delete transactions
-- Dynamic transaction history
-- Automatic income, expense and balance calculations
-- Persistent MySQL storage
-- REST API based frontend/backend communication
 
-## Database
-Run `schema.sql` in MySQL to create the `expense_tracker` database and `transactions` table.
+- Add income and expense transactions
+- Validate descriptions and positive amounts
+- View and delete transactions
+- Automatically calculate total income, total expenses, and net balance
+- Save transactions in browser local storage so they remain after reopening the page
+- Responsive layout for mobile and desktop
 
 ## Run locally
-1. Install Node.js and MySQL.
-2. Run `schema.sql` in MySQL.
-3. Copy `.env.example` to `.env` and enter your MySQL password.
-4. Run `npm install`.
-5. Run `npm start`.
-6. Open `http://localhost:3000`.
 
-## Technology Stack
-**Frontend:** HTML, CSS, JavaScript  
-**Backend:** Node.js, Express.js  
-**Database:** MySQL / SQL
+Open index.html in a modern browser. No server, database, package installation, or build step is required.
+
+## Data storage
+
+Transactions are stored in local storage for the current browser profile on the current device. They do not sync to another browser or device. Existing MySQL records are not imported automatically. Clearing the browser's site data removes local transactions.
+
+## Files
+
+- index.html: page content and transaction form
+- style.css: layout and responsive styling
+- script.js: transaction handling, calculations, and local storage
