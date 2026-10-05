@@ -13,7 +13,7 @@ A browser-only expense tracker built with HTML, CSS, and JavaScript. Add income 
 
 ## Run locally
 
-Open \`index.html\` in a modern browser. No server, database, package installation, or build step is required.
+Open index.html in a modern browser. No server, database, package installation, or build step is required.
 
 ## Data storage
 
@@ -21,6 +21,6 @@ Transactions are stored in local storage for the current browser profile on the 
 
 ## Files
 
-- \`index.html\` — page content and transaction form
-- \`style.css\` — layout and responsive styling
-- \`script.js\` — transaction handling, calculations, and local storage
+- index.html: page content and transaction form
+- style.css: layout and responsive styling
+- script.js: transaction handling, calculations, and local storage
