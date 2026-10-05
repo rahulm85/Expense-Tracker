@@ -1,6 +1,5 @@
-// Expense Tracker frontend - data is persisted through the Node.js/MySQL REST API
-let transactions = [];
-const API_URL = '/api/transactions';
+// Browser-only Expense Tracker. Transactions are stored in this browser.
+const STORAGE_KEY = 'expense-tracker.transactions.v1';
 
 const transactionForm = document.getElementById('transactionForm');
 const descInput = document.getElementById('desc');
@@ -9,93 +8,161 @@ const typeInput = document.getElementById('type');
 const transactionList = document.getElementById('transactionList');
 const totalIncomeEl = document.getElementById('totalIncome');
 const totalExpenseEl = document.getElementById('totalExpense');
-const netBalanceEl = document.getElementById('netBalance');
+const netBalanceEl = document.getElementById('totalBalance');
+const statusMessage = document.getElementById('statusMessage');
 
-async function loadTransactions() {
+const money = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  minimumFractionDigits: 2
+});
+
+let transactions = readTransactions();
+
+function readTransactions() {
   try {
-    const response = await fetch(API_URL);
-    if (!response.ok) throw new Error('Unable to load transactions');
-    transactions = await response.json();
-    updateUI();
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!Array.isArray(saved)) return [];
+
+    return saved.filter((item) =>
+      item &&
+      typeof item.description === 'string' &&
+      Number.isFinite(Number(item.amount)) &&
+      Number(item.amount) > 0 &&
+      ['income', 'expense'].includes(item.type)
+    ).map((item) => ({
+      id: String(item.id || createId()),
+      description: item.description,
+      amount: Number(item.amount),
+      type: item.type
+    }));
   } catch (error) {
-    transactionList.innerHTML = '<p style="color:#ef4444; text-align:center;">Could not connect to the database API.</p>';
-    console.error(error);
+    return [];
   }
 }
 
-transactionForm.addEventListener('submit', async function (e) {
-  e.preventDefault();
+function createId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function saveTransactions() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+    return true;
+  } catch (error) {
+    showMessage('Could not save data in this browser. Check its storage settings.', false);
+    return false;
+  }
+}
+
+function showMessage(message, isSuccess) {
+  statusMessage.textContent = message;
+  statusMessage.classList.toggle('success', Boolean(isSuccess));
+}
+
+transactionForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
   const description = descInput.value.trim();
   const amount = Number(amountInput.value);
   const type = typeInput.value;
 
-  if (!description || !Number.isFinite(amount) || amount <= 0 || !['income', 'expense'].includes(type)) return;
-
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, amount, type })
-    });
-    if (!response.ok) throw new Error('Unable to add transaction');
-    transactionForm.reset();
-    await loadTransactions();
-  } catch (error) {
-    console.error(error);
-    alert('Unable to save transaction. Check that the server and MySQL are running.');
-  }
-});
-
-transactionList.addEventListener('click', async function (e) {
-  if (!e.target.classList.contains('delete-btn')) return;
-  const id = Number(e.target.dataset.id);
-  try {
-    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('Unable to delete transaction');
-    await loadTransactions();
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-function updateUI() {
-  renderList();
-  calculateTotals();
-}
-
-function renderList() {
-  transactionList.innerHTML = '';
-  if (transactions.length === 0) {
-    transactionList.innerHTML = '<p style="color:#94a3b8; text-align:center;">No transactions added yet.</p>';
+  if (description.length < 3 || !Number.isFinite(amount) || amount <= 0 ||
+      !['income', 'expense'].includes(type)) {
+    showMessage('Enter a description of at least 3 characters and a positive amount.', false);
     return;
   }
 
-  transactions.forEach(item => {
-    const li = document.createElement('li');
-    li.className = `list-item ${item.type}`;
-    const sign = item.type === 'income' ? '+' : '-';
+  transactions.unshift({
+    id: createId(),
+    description,
+    amount,
+    type
+  });
+
+  if (!saveTransactions()) {
+    transactions.shift();
+    return;
+  }
+
+  transactionForm.reset();
+  typeInput.value = 'income';
+  render();
+  showMessage('Transaction added.', true);
+  descInput.focus();
+});
+
+transactionList.addEventListener('click', (event) => {
+  const button = event.target.closest('.delete-btn');
+  if (!button) return;
+
+  const previous = transactions;
+  transactions = transactions.filter((item) => item.id !== button.dataset.id);
+
+  if (!saveTransactions()) {
+    transactions = previous;
+    return;
+  }
+
+  render();
+  showMessage('Transaction deleted.', true);
+});
+
+function render() {
+  renderTransactions();
+  renderTotals();
+}
+
+function renderTransactions() {
+  transactionList.replaceChildren();
+
+  if (transactions.length === 0) {
+    const empty = document.createElement('li');
+    empty.className = 'empty-state';
+    empty.textContent = 'No transactions added yet.';
+    transactionList.appendChild(empty);
+    return;
+  }
+
+  transactions.forEach((item) => {
+    const row = document.createElement('li');
+    row.className = 'list-item ' + item.type;
+
     const description = document.createElement('span');
     description.textContent = item.description;
+
     const controls = document.createElement('div');
-    const value = document.createElement('strong');
-    value.textContent = `${sign}₹${Number(item.amount).toFixed(2)}`;
-    const button = document.createElement('button');
-    button.className = 'delete-btn';
-    button.dataset.id = item.id;
-    button.style.marginLeft = '10px';
-    button.textContent = '×';
-    controls.append(value, button);
-    li.append(description, controls);
-    transactionList.appendChild(li);
+    const amount = document.createElement('strong');
+    const sign = item.type === 'income' ? '+' : '-';
+    amount.textContent = sign + money.format(item.amount);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'delete-btn';
+    deleteButton.dataset.id = item.id;
+    deleteButton.setAttribute('aria-label', 'Delete transaction: ' + item.description);
+    deleteButton.textContent = 'Delete';
+
+    controls.append(amount, deleteButton);
+    row.append(description, controls);
+    transactionList.appendChild(row);
   });
 }
 
-function calculateTotals() {
-  const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-  const expense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
-  totalIncomeEl.textContent = `₹${income.toFixed(2)}`;
-  totalExpenseEl.textContent = `₹${expense.toFixed(2)}`;
-  netBalanceEl.textContent = `₹${(income - expense).toFixed(2)}`;
+function renderTotals() {
+  const income = transactions
+    .filter((item) => item.type === 'income')
+    .reduce((total, item) => total + item.amount, 0);
+  const expenses = transactions
+    .filter((item) => item.type === 'expense')
+    .reduce((total, item) => total + item.amount, 0);
+
+  totalIncomeEl.textContent = money.format(income);
+  totalExpenseEl.textContent = money.format(expenses);
+  netBalanceEl.textContent = money.format(income - expenses);
 }
 
-loadTransactions();
+render();
