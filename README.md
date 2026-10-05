@@ -17,7 +17,7 @@ Open index.html in a modern browser. No server, database, package installation, 
 
 ## Data storage
 
-Transactions are stored in local storage for the current browser profile on the current device. They do not sync to another browser or device. Clearing the browser's site data removes them.
+Transactions are stored in local storage for the current browser profile on the current device. They do not sync to another browser or device. Existing MySQL records are not imported automatically. Clearing the browser's site data removes local transactions.
 
 ## Files
 
